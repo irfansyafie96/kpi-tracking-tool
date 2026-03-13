@@ -1,0 +1,180 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="fw-bold" style="color: var(--color-pitch-black);">
+        PM Evaluation Form
+      </h2>
+      <p class="text-muted">Evaluate BA/QA performance using 18 metrics across 6 KRAs</p>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-outline-secondary me-2" (click)="goToBack()">← Back</button>
+      <button class="btn btn-outline-secondary" (click)="reset()">Reset Form</button>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="submitSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Evaluation Submitted Successfully!</strong>
+    <button type="button" class="btn-close" (click)="submitSuccess = false"></button>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Section A: Setup -->
+  <div class="card mb-4 border-0 shadow-sm">
+    <div class="card-header" style="background-color: var(--color-dusty-lavender); color: white;">
+      <h5 class="mb-0">Section A: Setup</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <!-- Project Selector -->
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Select Project <span class="text-danger">*</span></label>
+          <select class="form-select" [(ngModel)]="selectedProjectId" (change)="onProjectChange()">
+            <option [ngValue]="null">-- Select Project --</option>
+            <option *ngFor="let p of projects" [value]="p.id">{{ p.projectName }}</option>
+          </select>
+        </div>
+
+        <!-- Member Selector -->
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Select Member to Evaluate <span class="text-danger">*</span></label>
+          <div class="input-group">
+            <select class="form-select" [(ngModel)]="selectedMemberId" [disabled]="!selectedProjectId">
+              <option [ngValue]="null">-- Select Member --</option>
+              <option *ngFor="let m of members" [value]="m.id">{{ m.memberName }} ({{ m.role }})</option>
+            </select>
+            <button class="btn btn-outline-secondary" type="button" (click)="showAddMember = !showAddMember">
+              + Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Evaluator Name -->
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Evaluator Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" [(ngModel)]="evaluatorName" placeholder="Enter your name">
+        </div>
+      </div>
+
+      <!-- Add Member Form (Inline) -->
+      <div *ngIf="showAddMember" class="row mt-3 p-3 border rounded" style="background-color: var(--color-silver);">
+        <div class="col-md-5">
+          <input type="text" class="form-control" [(ngModel)]="newMemberName" placeholder="Member Name">
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" [(ngModel)]="newMemberRole">
+            <option value="BA">BA</option>
+            <option value="QA">QA</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-success w-100" (click)="addMember()">Add</button>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-secondary w-100" (click)="showAddMember = false">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="mb-4">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="fw-bold">Completion Progress:</span>
+      <span>{{ completedCount }} / {{ metrics.length }} metrics completed</span>
+    </div>
+    <div class="progress" style="height: 25px;">
+      <div class="progress-bar" 
+           [style.width.%]="(completedCount / metrics.length) * 100"
+           [class.bg-success]="completedCount === metrics.length"
+           [class.bg-warning]="completedCount < metrics.length"
+           [class.bg-danger]="completedCount === 0"
+           role="progressbar">
+        {{ ((completedCount / metrics.length) * 100) | number:'1.0-0' }}%
+      </div>
+    </div>
+  </div>
+
+  <!-- Section B: Evaluation Form (18 Metrics) -->
+  <div class="card mb-4 border-0 shadow-sm">
+    <div class="card-header" style="background-color: var(--color-stormy-teal); color: white;">
+      <h5 class="mb-0">Section B: Evaluation Metrics</h5>
+    </div>
+    <div class="card-body">
+      <!-- Loop through each KRA -->
+      <div *ngFor="let kra of kpiData; let kraIndex = index" class="mb-5">
+        <h4 class="border-bottom pb-2 mb-3" style="color: var(--color-dusty-lavender);">
+          {{ kraIndex + 1 }}. {{ kra.name }} ({{ kra.weight }}%)
+        </h4>
+        
+        <!-- Loop through metrics in this KRA -->
+        <div *ngFor="let metric of kra.metrics; let metricIndex = index" class="mb-4 p-3 border rounded bg-light">
+          <div class="row">
+            <div class="col-md-12">
+              <h6 class="fw-bold">
+                {{ metric.name }}
+                <small class="text-muted fw-normal">(Evidence: {{ metric.evidence }})</small>
+              </h6>
+            </div>
+          </div>
+          
+          <!-- Score Selection (1-4) -->
+          <div class="row mt-2">
+            <div class="col-md-12">
+              <label class="form-label fw-bold">Score (1-4):</label>
+              <div class="d-flex gap-2">
+                <div *ngFor="let score of [1,2,3,4]" class="form-check form-check-inline">
+                  <input class="form-check-input" 
+                         type="radio" 
+                         [name]="'score_' + metric.name"
+                         [value]="score"
+                         [checked]="getMetricScore(kra.name, metric.name) === score"
+                         (change)="setScore(kra.name, metric.name, score)">
+                  <label class="form-check-label fw-bold">
+                    {{ score }}
+                  </label>
+                </div>
+                <span class="ms-3 text-muted">{{ getRubricText(kra.name, metric.name) }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Evidence/Remarks -->
+          <div class="row mt-2">
+            <div class="col-md-12">
+              <label class="form-label fw-bold">Evidence/Remarks <span class="text-danger">*</span></label>
+              <textarea class="form-control" 
+                        rows="2" 
+                        [(ngModel)]="getMetricRef(kra.name, metric.name).evidenceRemarks"
+                        placeholder="Paste links (Redmine, OneDrive) or type remarks justifying the score"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit Button -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body text-center">
+      <button class="btn btn-lg px-5" 
+              [disabled]="!isFormValid || isSubmitting"
+              [style.background-color]="isFormValid ? 'var(--color-stormy-teal)' : 'var(--color-silver)'"
+              [style.color]="isFormValid ? 'white' : 'var(--color-pitch-black)'"
+              (click)="submitEvaluation()">
+        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+        {{ isSubmitting ? 'Submitting...' : 'Submit Evaluation' }}
+      </button>
+      
+      <p class="mt-2 text-muted" *ngIf="!isFormValid">
+        Please complete all {{ metrics.length }} metrics to enable submission.
+      </p>
+    </div>
+  </div>
+</div>

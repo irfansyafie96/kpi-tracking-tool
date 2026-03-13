@@ -1,0 +1,18 @@
+.bg-gradient {
+  background: linear-gradient(135deg, var(--color-dusty-lavender) 0%, var(--color-stormy-teal) 100%);
+}
+
+.card {
+  background-color: white;
+  border: 2px solid var(--color-silver);
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+.btn {
+  transition: all 0.3s ease;
+}

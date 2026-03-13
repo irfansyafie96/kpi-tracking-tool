@@ -1,1 +1,24 @@
-/* You can add global styles to this file, and also import other style files */
+/* Custom Color Palette - CSS Variables */
+:root {
+  /* Custom Color Palette */
+  --color-dusty-lavender: #67597a;
+  --color-silver: #c8c8c8;
+  --color-silver-alt: #b3b3b3;
+  --color-stormy-teal: #037171;
+  --color-pitch-black: #0a0903;
+
+  /* Bootstrap Variable Overrides */
+  --bs-primary: #67597a;
+  --bs-success: #037171;
+  --bs-secondary: #c8c8c8;
+  --bs-dark: #0a0903;
+  
+  /* Body */
+  --bs-body-bg: #f8f9fa;
+  --bs-body-color: #0a0903;
+}
+
+/* Global styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
