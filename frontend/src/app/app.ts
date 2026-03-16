@@ -2,11 +2,12 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LandingComponent } from './components/landing/landing.component';
 import { PmEvaluationComponent } from './components/pm-evaluation/pm-evaluation.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, LandingComponent, PmEvaluationComponent],
+  imports: [CommonModule, LandingComponent, PmEvaluationComponent, DashboardComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

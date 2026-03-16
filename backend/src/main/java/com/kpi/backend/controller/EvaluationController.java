@@ -2,6 +2,7 @@ package com.kpi.backend.controller;
 
 import com.kpi.backend.model.Evaluation;
 import com.kpi.backend.model.EvaluationDetail;
+import com.kpi.backend.service.EvaluationDetailService;
 import com.kpi.backend.service.EvaluationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +14,11 @@ import java.util.Map;
 public class EvaluationController {
 
     private final EvaluationService evaluationService;
+    private final EvaluationDetailService detailService;
 
-    public EvaluationController(EvaluationService evaluationService) {
+    public EvaluationController(EvaluationService evaluationService, EvaluationDetailService detailService) {
         this.evaluationService = evaluationService;
+        this.detailService = detailService;
     }
 
     @PostMapping
@@ -46,5 +49,10 @@ public class EvaluationController {
                 .findFirst()
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/details")
+    public List<EvaluationDetail> getEvaluationDetails(@PathVariable Long id) {
+        return detailService.getDetailsByEvaluation(id);
     }
 }

@@ -24,5 +24,9 @@ Thumbs.db
 # Database (local only)
 *.sql
 
+# Spring Boot (local profiles - DON'T commit credentials!)
+application-dev.properties
+application-*.properties
+
 # AI Memory (excluded from commit)
 .ai/

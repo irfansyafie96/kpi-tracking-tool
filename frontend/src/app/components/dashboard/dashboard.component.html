@@ -1,0 +1,213 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="fw-bold" style="color: var(--color-pitch-black);">
+        Project Director Dashboard
+      </h2>
+      <p class="text-muted">Monitor BA/QA performance across projects</p>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-outline-secondary" (click)="goToBack()">← Back</button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4 border-0 shadow-sm">
+    <div class="card-header" style="background-color: var(--color-dusty-lavender); color: white;">
+      <h5 class="mb-0">Filters</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <!-- Project Filter -->
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Select Project</label>
+          <select class="form-select" [(ngModel)]="selectedProjectId" (change)="onProjectChange()">
+            <option [ngValue]="null">-- All Projects --</option>
+            <option *ngFor="let p of projects" [value]="p.id">{{ p.projectName }}</option>
+          </select>
+        </div>
+
+        <!-- Employee Filter -->
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Select Employee</label>
+          <select class="form-select" [(ngModel)]="selectedMemberId" (change)="onMemberChange()" [disabled]="!selectedProjectId">
+            <option [ngValue]="null">-- Select Employee --</option>
+            <option *ngFor="let m of members" [value]="m.id">{{ m.memberName }} ({{ m.role }})</option>
+          </select>
+        </div>
+
+        <!-- Create Project Button -->
+        <div class="col-md-4">
+          <button class="btn w-100" 
+                  style="background-color: var(--color-stormy-teal); color: white;"
+                  (click)="showCreateProject = !showCreateProject">
+            {{ showCreateProject ? 'Cancel' : '+ Create Project' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Create Project Form -->
+      <div *ngIf="showCreateProject" class="row mt-3 p-3 border rounded" style="background-color: var(--color-silver);">
+        <div class="col-md-8">
+          <input type="text" class="form-control" [(ngModel)]="newProjectName" placeholder="Enter project name">
+        </div>
+        <div class="col-md-4">
+          <button class="btn btn-success w-100" (click)="createProject()">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center">
+          <h6 class="text-muted text-uppercase">Total Evaluations</h6>
+          <h2 class="fw-bold" style="color: var(--color-dusty-lavender);">{{ summary?.totalEvaluations || 0 }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center">
+          <h6 class="text-muted text-uppercase">Average Score</h6>
+          <h2 class="fw-bold" style="color: var(--color-stormy-teal);">{{ summary?.averageScore || 0 | number:'1.2-2' }}</h2>
+          <small class="text-muted">out of 4.0</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted text-uppercase text-center mb-2">Rating Breakdown</h6>
+          <div class="d-flex justify-content-between">
+            <div class="text-center">
+              <span class="badge rating-outstanding d-block">{{ summary?.ratingBreakdown?.['Outstanding'] || 0 }}</span>
+              <small class="text-muted">Outstanding</small>
+            </div>
+            <div class="text-center">
+              <span class="badge rating-good d-block">{{ summary?.ratingBreakdown?.['Good'] || 0 }}</span>
+              <small class="text-muted">Good</small>
+            </div>
+            <div class="text-center">
+              <span class="badge rating-average d-block">{{ summary?.ratingBreakdown?.['Average'] || 0 }}</span>
+              <small class="text-muted">Average</small>
+            </div>
+            <div class="text-center">
+              <span class="badge rating-poor d-block">{{ summary?.ratingBreakdown?.['Poor'] || 0 }}</span>
+              <small class="text-muted">Poor</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Member Details -->
+  <div *ngIf="memberSummary" class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header" style="background-color: var(--color-stormy-teal); color: white;">
+          <h5 class="mb-0">Employee Performance Details</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <strong>Latest Score:</strong> 
+              <span class="ms-2 h4" [class]="getRatingClass(memberSummary.latestRating)">
+                {{ memberSummary.latestScore | number:'1.2-2' }}
+              </span>
+            </div>
+            <div class="col-md-4">
+              <strong>Rating:</strong>
+              <span class="ms-2 badge" [class]="getRatingClass(memberSummary.latestRating)">
+                {{ memberSummary.latestRating }}
+              </span>
+            </div>
+            <div class="col-md-4">
+              <strong>Evaluation Date:</strong>
+              <span class="ms-2">{{ memberSummary.latestEvaluationDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+
+          <!-- Radar Chart -->
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-uppercase text-muted mb-3">KRA Performance (Radar Chart)</h6>
+              <div style="max-height: 300px;">
+                <canvas baseChart
+                  type="radar"
+                  [data]="radarChartData"
+                  [options]="radarChartOptions">
+                </canvas>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-uppercase text-muted mb-3">KRA Scores</h6>
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>KRA</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let score of getKraScoresList()">
+                    <td>{{ score.kra }}</td>
+                    <td>{{ score.value | number:'1.1-1' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Table -->
+  <div *ngIf="evaluationDetails.length > 0" class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header" style="background-color: var(--color-dusty-lavender); color: white;">
+          <h5 class="mb-0">Evaluation Details</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>KRA</th>
+                  <th>Metric</th>
+                  <th>Evidence</th>
+                  <th>Score (%)</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let detail of evaluationDetails">
+                  <td>{{ detail.kraName }}</td>
+                  <td>{{ detail.metricName }}</td>
+                  <td>{{ detail.evidenceReviewed }}</td>
+                  <td><strong>{{ detail.percentageScore }}%</strong></td>
+                  <td>{{ detail.evidenceRemarks }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Data Message -->
+  <div *ngIf="!memberSummary && selectedProjectId && selectedMemberId" class="alert alert-info">
+    No evaluation data found for this employee.
+  </div>
+
+  <div *ngIf="!selectedProjectId" class="alert alert-warning">
+    Please select a project to view performance data.
+  </div>
+</div>

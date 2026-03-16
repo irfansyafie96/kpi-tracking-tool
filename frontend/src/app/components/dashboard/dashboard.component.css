@@ -1,0 +1,41 @@
+.rating-outstanding {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+.rating-good {
+  background-color: #007bff !important;
+  color: white !important;
+}
+
+.rating-average {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+.rating-poor {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.badge {
+  padding: 0.5em 0.75em;
+  font-size: 0.875rem;
+}
+
+.table th {
+  background-color: var(--color-dusty-lavender);
+  color: white;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(103, 89, 122, 0.1);
+}
+
+.card {
+  border-radius: 8px;
+}
+
+.progress {
+  border-radius: 4px;
+}

@@ -10,11 +10,8 @@
   (goBack)="goBack()">
 </app-pm-evaluation>
 
-<!-- Project Director View (Placeholder) -->
-<div *ngIf="currentRole === 'PD'" class="container mt-5">
-  <div class="alert alert-success">
-    <h2>Project Director Dashboard</h2>
-    <p>Dashboard coming soon...</p>
-    <button class="btn btn-secondary" (click)="goBack()">Back to Home</button>
-  </div>
-</div>
+<!-- Project Director View -->
+<app-dashboard 
+  *ngIf="currentRole === 'PD'"
+  (goBack)="goBack()">
+</app-dashboard>
