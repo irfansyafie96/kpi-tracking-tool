@@ -124,23 +124,21 @@
             </div>
           </div>
           
-          <!-- Score Selection (1-4) -->
+          <!-- Score Selection (Percentage) -->
           <div class="row mt-2">
             <div class="col-md-12">
-              <label class="form-label fw-bold">Score (1-4):</label>
-              <div class="d-flex gap-2">
-                <div *ngFor="let score of [1,2,3,4]" class="form-check form-check-inline">
-                  <input class="form-check-input" 
-                         type="radio" 
-                         [name]="'score_' + metric.name"
-                         [value]="score"
-                         [checked]="getMetricScore(kra.name, metric.name) === score"
-                         (change)="setScore(kra.name, metric.name, score)">
-                  <label class="form-check-label fw-bold">
-                    {{ score }}
-                  </label>
-                </div>
-                <span class="ms-3 text-muted">{{ getRubricText(kra.name, metric.name) }}</span>
+              <label class="form-label fw-bold">Score (1-{{ metric.weight }}%):</label>
+              <div class="d-flex align-items-center gap-3">
+                <input type="number" 
+                       class="form-control" 
+                       style="width: 100px;"
+                       [name]="'score_' + metric.name"
+                       [value]="getMetricScore(kra.name, metric.name)"
+                       [min]="1"
+                       [max]="metric.weight"
+                       (input)="onPercentageChange(kra.name, metric.name, $any($event.target).valueAsNumber)"
+                       placeholder="%">
+                <span class="text-muted">{{ getRubricText(kra.name, metric.name) }}</span>
               </div>
             </div>
           </div>

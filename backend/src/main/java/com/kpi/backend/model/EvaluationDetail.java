@@ -28,8 +28,8 @@ public class EvaluationDetail {
     @Column(name = "evidence_reviewed")
     private String evidenceReviewed;
 
-    @Column(name = "score_given", nullable = false)
-    private Integer scoreGiven;
+    @Column(name = "percentage_score", nullable = false)
+    private Integer percentageScore;
 
     @Column(name = "evidence_remarks", columnDefinition = "TEXT")
     private String evidenceRemarks;

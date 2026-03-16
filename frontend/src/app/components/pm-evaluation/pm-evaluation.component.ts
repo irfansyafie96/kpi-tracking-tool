@@ -19,7 +19,7 @@ interface MetricScore {
   kraName: string;
   metricName: string;
   evidenceReviewed: string;
-  scoreGiven: number | null;
+  percentageScore: number | null;
   evidenceRemarks: string;
 }
 
@@ -65,7 +65,7 @@ export class PmEvaluationComponent implements OnInit {
           kraName: kra.name,
           metricName: metric.name,
           evidenceReviewed: metric.evidence,
-          scoreGiven: null,
+          percentageScore: null,
           evidenceRemarks: ''
         });
       }
@@ -112,7 +112,7 @@ export class PmEvaluationComponent implements OnInit {
   }
 
   get completedCount(): number {
-    return this.metrics.filter(m => m.scoreGiven !== null && m.evidenceRemarks.trim().length > 0).length;
+    return this.metrics.filter(m => m.percentageScore !== null && m.evidenceRemarks.trim().length > 0).length;
   }
 
   get isFormValid(): boolean {
@@ -166,13 +166,20 @@ export class PmEvaluationComponent implements OnInit {
 
   getMetricScore(kraName: string, metricName: string): number | null {
     const metric = this.metrics.find(m => m.kraName === kraName && m.metricName === metricName);
-    return metric?.scoreGiven ?? null;
+    return metric?.percentageScore ?? null;
   }
 
   setScore(kraName: string, metricName: string, score: number) {
     const metric = this.metrics.find(m => m.kraName === kraName && m.metricName === metricName);
     if (metric) {
-      metric.scoreGiven = score;
+      metric.percentageScore = score;
+    }
+  }
+
+  onPercentageChange(kraName: string, metricName: string, value: number) {
+    const metric = this.metrics.find(m => m.kraName === kraName && m.metricName === metricName);
+    if (metric) {
+      metric.percentageScore = value;
     }
   }
 
@@ -187,7 +194,14 @@ export class PmEvaluationComponent implements OnInit {
     if (!metric) return '';
     
     const score = this.getMetricScore(kraName, metricName);
-    if (score === null) return 'Select a score to see rubric';
-    return metric.rubric[score];
+    if (score === null) return 'Enter a percentage to see rubric';
+    return metric.rubric[score] || '';
+  }
+
+  getMaxScore(metricName: string): number {
+    const forKra = this.kpiData.find(k => k.metrics.some(m => m.name === metricName));
+    if (!forKra) return 5;
+    const metric = forKra.metrics.find(m => m.name === metricName);
+    return metric ? metric.weight : 5;
   }
 }

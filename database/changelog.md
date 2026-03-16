@@ -1,5 +1,33 @@
 # Database Changelog
 
+## Version 1.1 (2026-03-17)
+
+### Schema Change
+
+Changed `score_given` to `percentage_score` to support percentage-based scoring:
+
+```sql
+ALTER TABLE evaluation_details 
+CHANGE COLUMN score_given percentage_score INT NOT NULL;
+```
+
+### Reason
+- PM now enters percentage (1-max weight) instead of 1-4 score
+- Total percentages are summed and divided by 25 to get final 0-4.0 score
+
+### Backend Changes
+- `EvaluationDetail.java`: Renamed `scoreGiven` → `percentageScore`
+- `EvaluationService.java`: Simplified calculation logic
+- `EvaluationDetailRepository.java`: Added KRA aggregation queries
+- `EvaluationDetailService.java`: Added KRA score methods
+- `DashboardController.java`: Added KRA-score endpoints
+
+### Frontend Changes
+- `kpi-data.ts`: Updated rubrics to show percentage ranges
+- `pm-evaluation.component.ts/html`: Changed radio buttons to number input
+
+---
+
 ## Version 1.0 (2026-03-12)
 
 ### Initial Schema

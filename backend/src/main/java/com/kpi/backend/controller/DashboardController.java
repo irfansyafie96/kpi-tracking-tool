@@ -2,6 +2,7 @@ package com.kpi.backend.controller;
 
 import com.kpi.backend.model.Evaluation;
 import com.kpi.backend.model.ProjectMember;
+import com.kpi.backend.service.EvaluationDetailService;
 import com.kpi.backend.service.EvaluationService;
 import com.kpi.backend.service.ProjectMemberService;
 import com.kpi.backend.service.ProjectService;
@@ -16,13 +17,16 @@ public class DashboardController {
     private final ProjectService projectService;
     private final ProjectMemberService memberService;
     private final EvaluationService evaluationService;
+    private final EvaluationDetailService detailService;
 
     public DashboardController(ProjectService projectService, 
                                ProjectMemberService memberService,
-                               EvaluationService evaluationService) {
+                               EvaluationService evaluationService,
+                               EvaluationDetailService detailService) {
         this.projectService = projectService;
         this.memberService = memberService;
         this.evaluationService = evaluationService;
+        this.detailService = detailService;
     }
 
     @GetMapping("/summary")
@@ -38,7 +42,6 @@ public class DashboardController {
             return summary;
         }
         
-        // Calculate average score
         BigDecimal totalScore = BigDecimal.ZERO;
         Map<String, Integer> ratingCount = new HashMap<>();
         
@@ -98,8 +101,34 @@ public class DashboardController {
             summary.put("latestScore", latest.getFinalScore());
             summary.put("latestRating", latest.getPerformanceRating());
             summary.put("latestEvaluationDate", latest.getEvaluationDate());
+            
+            List<Long> evalIds = evaluations.stream()
+                .map(Evaluation::getId)
+                .toList();
+            Map<String, Double> kraScores = detailService.getKraScoresByEvaluationIds(evalIds);
+            summary.put("kraScores", kraScores);
         }
         
         return summary;
+    }
+
+    @GetMapping("/kra-scores/member/{memberId}")
+    public Map<String, Double> getKraScoresByMember(@PathVariable Long memberId) {
+        List<Evaluation> evaluations = evaluationService.getEvaluationsByMember(memberId);
+        
+        if (evaluations.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        
+        List<Long> evalIds = evaluations.stream()
+            .map(Evaluation::getId)
+            .toList();
+        
+        return detailService.getKraScoresByEvaluationIds(evalIds);
+    }
+
+    @GetMapping("/kra-scores/evaluation/{evaluationId}")
+    public Map<String, Double> getKraScoresByEvaluation(@PathVariable Long evaluationId) {
+        return detailService.getKraScoresByEvaluation(evaluationId);
     }
 }
