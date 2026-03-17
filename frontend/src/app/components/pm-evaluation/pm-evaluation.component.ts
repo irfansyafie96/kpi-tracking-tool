@@ -1,8 +1,9 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { KRA, Metric, KPI_DATA } from '../../models/kpi-data';
+declare var bootstrap: any;
 
 interface Project {
   id: number;
@@ -30,7 +31,7 @@ interface MetricScore {
   templateUrl: './pm-evaluation.component.html',
   styleUrls: ['./pm-evaluation.component.css']
 })
-export class PmEvaluationComponent implements OnInit {
+export class PmEvaluationComponent implements OnInit, AfterViewInit {
   kpiData = KPI_DATA;
   projects: Project[] = [];
   members: ProjectMember[] = [];
@@ -50,11 +51,35 @@ export class PmEvaluationComponent implements OnInit {
   showAddMember = false;
   @Output() goBack = new EventEmitter<void>();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.initMetrics();
     this.loadProjects();
+  }
+
+  ngAfterViewInit() {
+    // Initialize toast elements
+  }
+
+  showSuccessToast(message: string) {
+    const toastEl = document.getElementById('pmSuccessToast');
+    const toastBody = document.getElementById('pmSuccessToastBody');
+    if (toastEl && toastBody) {
+      toastBody.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+  }
+
+  showErrorToast(message: string) {
+    const toastEl = document.getElementById('pmErrorToast');
+    const toastBody = document.getElementById('pmErrorToastBody');
+    if (toastEl && toastBody) {
+      toastBody.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
   }
 
   initMetrics() {
@@ -75,8 +100,15 @@ export class PmEvaluationComponent implements OnInit {
   loadProjects() {
     this.http.get<Project[]>('http://localhost:8080/api/projects')
       .subscribe({
-        next: (data) => this.projects = data,
-        error: (err) => console.error('Error loading projects:', err)
+        next: (data) => {
+          this.projects = data;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('[PM DEBUG] Error loading projects:', err);
+          this.showErrorToast('Failed to load projects. Please refresh the page.');
+          this.cdr.detectChanges();
+        }
       });
   }
 
@@ -89,8 +121,15 @@ export class PmEvaluationComponent implements OnInit {
     if (this.selectedProjectId) {
       this.http.get<ProjectMember[]>(`http://localhost:8080/api/projects/${this.selectedProjectId}/members`)
         .subscribe({
-          next: (data) => this.members = data,
-          error: (err) => console.error('Error loading members:', err)
+          next: (data) => {
+            this.members = data;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error('[PM DEBUG] Error loading members:', err);
+            this.showErrorToast('Failed to load team members.');
+            this.cdr.detectChanges();
+          }
         });
     }
   }
@@ -106,8 +145,14 @@ export class PmEvaluationComponent implements OnInit {
         this.members.push(member);
         this.newMemberName = '';
         this.showAddMember = false;
+        this.showSuccessToast('Team member added successfully!');
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error adding member:', err)
+      error: (err) => {
+        console.error('[PM DEBUG] Error adding member:', err);
+        this.showErrorToast('Failed to add team member.');
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -141,11 +186,15 @@ export class PmEvaluationComponent implements OnInit {
         next: (result) => {
           this.isSubmitting = false;
           this.submitSuccess = true;
+          this.showSuccessToast('Evaluation submitted successfully!');
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.isSubmitting = false;
           this.errorMessage = 'Failed to submit evaluation. Please try again.';
-          console.error('Error submitting evaluation:', err);
+          console.error('[PM DEBUG] Error submitting evaluation:', err);
+          this.showErrorToast('Failed to submit evaluation. Please try again.');
+          this.cdr.detectChanges();
         }
       });
   }

@@ -1,9 +1,10 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { DashboardService, Project, ProjectMember, DashboardSummary, MemberSummary, EvaluationDetail } from './dashboard.service';
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-dashboard',
@@ -12,7 +13,7 @@ import { DashboardService, Project, ProjectMember, DashboardSummary, MemberSumma
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
   projects: Project[] = [];
   members: ProjectMember[] = [];
   
@@ -57,24 +58,62 @@ export class DashboardComponent implements OnInit {
     }
   };
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private dashboardService: DashboardService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadProjects();
     this.loadGlobalSummary();
   }
 
+  ngAfterViewInit() {
+    // Initialize toast elements
+  }
+
+  showSuccessToast(message: string) {
+    const toastEl = document.getElementById('successToast');
+    const toastBody = document.getElementById('successToastBody');
+    if (toastEl && toastBody) {
+      toastBody.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+  }
+
+  showErrorToast(message: string) {
+    const toastEl = document.getElementById('errorToast');
+    const toastBody = document.getElementById('errorToastBody');
+    if (toastEl && toastBody) {
+      toastBody.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+  }
+
   loadProjects() {
     this.dashboardService.getProjects().subscribe({
-      next: (data) => this.projects = data,
-      error: (err) => console.error('Error loading projects:', err)
+      next: (data) => {
+        this.projects = data;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('[DEBUG] Error loading projects:', err);
+        this.showErrorToast('Failed to load projects. Please refresh the page.');
+        this.cdr.detectChanges();
+      }
     });
   }
 
   loadGlobalSummary() {
     this.dashboardService.getGlobalSummary().subscribe({
-      next: (data) => this.summary = data,
-      error: (err) => console.error('Error loading summary:', err)
+      next: (data) => {
+        this.summary = data;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('[DEBUG] Error loading summary:', err);
+        this.showErrorToast('Failed to load summary data.');
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -87,8 +126,14 @@ export class DashboardComponent implements OnInit {
     
     if (this.selectedProjectId) {
       this.dashboardService.getMembersByProject(this.selectedProjectId).subscribe({
-        next: (data) => this.members = data,
-        error: (err) => console.error('Error loading members:', err)
+        next: (data) => {
+          this.members = data;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading members:', err);
+          this.cdr.detectChanges();
+        }
       });
 
       this.dashboardService.getProjectSummary(this.selectedProjectId).subscribe({
@@ -100,8 +145,12 @@ export class DashboardComponent implements OnInit {
               ratingBreakdown: this.calculateRatingBreakdown(data.memberScores)
             };
           }
+          this.cdr.detectChanges();
         },
-        error: (err) => console.error('Error loading project summary:', err)
+        error: (err) => {
+          console.error('Error loading project summary:', err);
+          this.cdr.detectChanges();
+        }
       });
     } else {
       this.loadGlobalSummary();
@@ -119,8 +168,12 @@ export class DashboardComponent implements OnInit {
           this.memberSummary = data;
           this.loadKraScores();
           this.loadEvaluationDetails();
+          this.cdr.detectChanges();
         },
-        error: (err) => console.error('Error loading member summary:', err)
+        error: (err) => {
+          console.error('Error loading member summary:', err);
+          this.cdr.detectChanges();
+        }
       });
     }
   }
@@ -139,8 +192,12 @@ export class DashboardComponent implements OnInit {
           kraScores['Process Efficiency'] || 0
         ];
         this.radarChartData.datasets[0].data = orderedScores;
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error loading KRA scores:', err)
+      error: (err) => {
+        console.error('Error loading KRA scores:', err);
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -152,12 +209,22 @@ export class DashboardComponent implements OnInit {
         if (evaluations.length > 0) {
           const latestEvalId = evaluations[0].id;
           this.dashboardService.getEvaluationDetails(latestEvalId).subscribe({
-            next: (details) => this.evaluationDetails = details,
-            error: (err) => console.error('Error loading details:', err)
+            next: (details) => {
+              this.evaluationDetails = details;
+              this.cdr.detectChanges();
+            },
+            error: (err) => {
+              console.error('Error loading details:', err);
+              this.cdr.detectChanges();
+            }
           });
         }
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error loading evaluations:', err)
+      error: (err) => {
+        console.error('Error loading evaluations:', err);
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -188,8 +255,12 @@ export class DashboardComponent implements OnInit {
         this.showCreateProject = false;
         this.selectedProjectId = project.id;
         this.onProjectChange();
+        this.showSuccessToast('Project created successfully!');
       },
-      error: (err) => console.error('Error creating project:', err)
+      error: (err) => {
+        console.error('[DEBUG] Error creating project:', err);
+        this.showErrorToast('Failed to create project. Please try again.');
+      }
     });
   }
 

@@ -1,4 +1,22 @@
 <div class="container-fluid py-4">
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    <div id="pmSuccessToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-success text-white">
+        <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="pmSuccessToastBody"></div>
+    </div>
+    <div id="pmErrorToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-danger text-white">
+        <strong class="me-auto">Error</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="pmErrorToastBody"></div>
+    </div>
+  </div>
+
   <!-- Header -->
   <div class="row mb-4">
     <div class="col">
