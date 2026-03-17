@@ -9,6 +9,7 @@ import com.kpi.backend.service.ProjectService;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @RestController
 @RequestMapping("/api/dashboard")
@@ -53,7 +54,7 @@ public class DashboardController {
         BigDecimal avgScore = totalScore.divide(
             BigDecimal.valueOf(allEvaluations.size()), 
             2, 
-            BigDecimal.ROUND_HALF_UP
+            RoundingMode.HALF_UP
         );
         
         summary.put("averageScore", avgScore);
