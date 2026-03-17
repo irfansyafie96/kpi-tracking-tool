@@ -1,5 +1,6 @@
 package com.kpi.backend.controller;
 
+import com.kpi.backend.dto.EvaluationRequest;
 import com.kpi.backend.model.Evaluation;
 import com.kpi.backend.model.EvaluationDetail;
 import com.kpi.backend.service.EvaluationDetailService;
@@ -7,7 +8,6 @@ import com.kpi.backend.service.EvaluationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/evaluations")
@@ -22,14 +22,12 @@ public class EvaluationController {
     }
 
     @PostMapping
-    public Evaluation submitEvaluation(@RequestBody Map<String, Object> request) {
-        Long memberId = Long.valueOf(request.get("memberId").toString());
-        String evaluatorName = request.get("evaluatorName").toString();
-        
-        @SuppressWarnings("unchecked")
-        List<EvaluationDetail> details = (List<EvaluationDetail>) request.get("details");
-        
-        return evaluationService.submitEvaluation(memberId, evaluatorName, details);
+    public Evaluation submitEvaluation(@RequestBody EvaluationRequest request) {
+        return evaluationService.submitEvaluation(
+            request.getMemberId(), 
+            request.getEvaluatorName(), 
+            request.getDetails()
+        );
     }
 
     @GetMapping
