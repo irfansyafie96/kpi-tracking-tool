@@ -157,7 +157,7 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
   }
 
   get completedCount(): number {
-    return this.metrics.filter(m => m.percentageScore !== null && m.evidenceRemarks.trim().length > 0).length;
+    return this.metrics.filter(m => m.percentageScore !== null).length;
   }
 
   get isFormValid(): boolean {
