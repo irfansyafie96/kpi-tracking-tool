@@ -1,0 +1,262 @@
+<div class="container-fluid py-4">
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    <div id="kpiSuccessToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-success text-white">
+        <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="kpiSuccessToastBody"></div>
+    </div>
+    <div id="kpiErrorToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-danger text-white">
+        <strong class="me-auto">Error</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="kpiErrorToastBody"></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="fw-bold text-dark">
+        KPI Master Setup
+      </h2>
+      <p class="text-muted">Configure the evaluation framework - KRAs, metrics, weights, and rubrics</p>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-outline-secondary me-2" (click)="onGoBack()">← Back to Dashboard</button>
+      <button class="btn btn-outline-secondary" (click)="loadKpis()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Weight Summary -->
+  <div class="card mb-4 border-0 shadow-sm">
+    <div class="card-header bg-primary">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Weight Summary</h5>
+        <button class="btn btn-sm btn-light" (click)="validateWeights()">Validate Weights</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="text-center">
+            <h4 [class.text-success]="totalKraWeight === 100" [class.text-danger]="totalKraWeight !== 100">
+              {{ totalKraWeight }}%
+            </h4>
+            <p class="mb-0">Total KRA Weight</p>
+            <small class="text-muted">Sum of unique KRA weights (should be 100%)</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center">
+            <h4 [class.text-success]="totalMetricWeight === 100" [class.text-danger]="totalMetricWeight !== 100">
+              {{ totalMetricWeight }}%
+            </h4>
+            <p class="mb-0">Total Metric Weight</p>
+            <small class="text-muted">Sum of all metric weights (should be 100%)</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center">
+            <h4>{{ getKraNames().length }}</h4>
+            <p class="mb-0">Total KRAs</p>
+            <small class="text-muted">Number of Key Result Areas</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading KPI data...</p>
+  </div>
+
+  <!-- KPI List -->
+  <div *ngIf="!isLoading">
+    <!-- Add KRA Button -->
+    <div class="mb-3">
+      <button class="btn btn-success" (click)="startAddKra()" *ngIf="!showAddKra">
+        + Add New KRA
+      </button>
+    </div>
+
+    <!-- Add New KRA Form -->
+    <div *ngIf="showAddKra" class="card mb-4 border-0 shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">Add New KRA</h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">KRA Name</label>
+            <input type="text" class="form-control" [(ngModel)]="newKraName" placeholder="e.g., Quality Assurance">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">KRA Weight (%)</label>
+            <input type="number" class="form-control" [(ngModel)]="newKraWeight" min="1" max="100">
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <div class="d-grid gap-2 w-100">
+              <button class="btn btn-success" (click)="saveNewKra()" [disabled]="isSaving">
+                {{ isSaving ? 'Saving...' : 'Save' }}
+              </button>
+              <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KRAs and Metrics -->
+    <div *ngFor="let kraName of getKraNames(); let kraIndex = index" class="card mb-4 border-0 shadow-sm">
+      <!-- KRA Header -->
+      <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
+        <h5 class="mb-0">{{ kraIndex + 1 }}. {{ kraName }} ({{ getKraWeight(kraName) }}%)</h5>
+        <button class="btn btn-sm btn-light" (click)="startAddMetric(kraName)">+ Add Metric</button>
+      </div>
+
+      <!-- Add New Metric Form -->
+      <div *ngIf="showAddMetric && addToKraName === kraName" class="card-body border-bottom">
+        <h6 class="text-success mb-3">Add New Metric to {{ kraName }}</h6>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Metric Name *</label>
+            <input type="text" class="form-control" [(ngModel)]="newMetric.metricName" placeholder="e.g., Code review quality">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Evidence Required</label>
+            <input type="text" class="form-control" [(ngModel)]="newMetric.evidence" placeholder="e.g., GitHub PRs">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Weight</label>
+            <input type="number" class="form-control" [(ngModel)]="newMetric.metricWeight" min="1">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Requires File?</label>
+            <select class="form-select" [(ngModel)]="newMetric.requiresFile">
+              <option [ngValue]="false">No</option>
+              <option [ngValue]="true">Yes</option>
+            </select>
+          </div>
+          <div class="col-md-8 d-flex align-items-end">
+            <div class="d-grid gap-2 w-100">
+              <button class="btn btn-success" (click)="saveNewMetric()" [disabled]="isSaving">
+                {{ isSaving ? 'Saving...' : 'Save Metric' }}
+              </button>
+              <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metrics List -->
+      <div class="card-body">
+        <div *ngFor="let metric of getMetricsForKra(kraName); let metricIndex = index" 
+             class="border rounded p-3 mb-3"
+             [style.background-color]="editingMetric?.id === metric.id ? '#f8f9fa' : ''">
+           
+          <!-- View Mode -->
+          <div *ngIf="editingMetric?.id !== metric.id" class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <h6 class="mb-1">
+                {{ metricIndex + 1 }}. {{ metric.metricName }}
+                <span class="badge bg-secondary ms-2">{{ metric.metricWeight }}%</span>
+                <span *ngIf="metric.requiresFile" class="badge bg-warning text-dark ms-1">File Required</span>
+              </h6>
+              <p class="mb-1 text-muted small">Evidence: {{ metric.evidence }}</p>
+              <p class="mb-0 text-muted small" style="white-space: pre-line;">Rubric: {{ formatRubric(metric.rubricJson) }}</p>
+            </div>
+            <div>
+              <button class="btn btn-sm me-1 btn-primary-custom" 
+                      (click)="editMetric(metric)">Edit</button>
+              <button class="btn btn-sm btn-danger" 
+                      (click)="deleteMetric(metric)">Delete</button>
+            </div>
+          </div>
+
+          <!-- Edit Mode -->
+          <div *ngIf="editingMetric" class="edit-form">
+            <h6 class="text-primary mb-3">Editing: {{ metric.metricName }}</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Metric Name *</label>
+                <input type="text" class="form-control" [(ngModel)]="editingMetric!.metricName">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Evidence</label>
+                <input type="text" class="form-control" [(ngModel)]="editingMetric!.evidence">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Weight</label>
+                <input type="number" class="form-control" [(ngModel)]="editingMetric!.metricWeight" min="1">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Requires File?</label>
+                <select class="form-select" [(ngModel)]="editingMetric!.requiresFile">
+                  <option [ngValue]="false">No</option>
+                  <option [ngValue]="true">Yes</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">KRA Weight</label>
+                <input type="number" class="form-control" [(ngModel)]="editingMetric!.kraWeight" min="1">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Display Order</label>
+                <input type="number" class="form-control" [(ngModel)]="editingMetric!.displayOrder">
+              </div>
+              
+              <!-- Rubric Editor -->
+              <div class="col-12">
+                <label class="form-label">Rubric</label>
+                <div *ngFor="let entry of rubricEntries; let i = index" class="row g-2 mb-2">
+                  <div class="col-md-2">
+                    <input type="number" class="form-control" [(ngModel)]="entry.key" min="1" placeholder="Score">
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" class="form-control" [(ngModel)]="entry.value" placeholder="Description">
+                  </div>
+                  <div class="col-md-2">
+                    <button class="btn w-100 btn-danger-custom" (click)="removeRubricEntry(i)">Remove</button>
+                  </div>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary" (click)="addRubricEntry()">+ Add Rubric Level</button>
+              </div>
+
+              <div class="col-12">
+                <div class="d-flex gap-2">
+                  <button class="btn btn-success" (click)="saveMetric()" [disabled]="isSaving">
+                    {{ isSaving ? 'Saving...' : 'Save Changes' }}
+                  </button>
+                  <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Metrics Message -->
+        <div *ngIf="getMetricsForKra(kraName).length === 0" class="text-center text-muted py-3">
+          No metrics in this KRA yet. Click "Add Metric" to create one.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

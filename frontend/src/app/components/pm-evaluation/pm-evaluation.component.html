@@ -20,10 +20,10 @@
   <!-- Header -->
   <div class="row mb-4">
     <div class="col">
-      <h2 class="fw-bold" style="color: var(--color-pitch-black);">
+      <h2 class="fw-bold text-dark">
         PM Evaluation Form
       </h2>
-      <p class="text-muted">Evaluate BA/QA performance using 18 metrics across 6 KRAs</p>
+      <p class="text-muted">Evaluate BA/QA performance using KPIs from the master setup</p>
     </div>
     <div class="col-auto">
       <button class="btn btn-outline-secondary me-2" (click)="goToBack()">← Back</button>
@@ -45,7 +45,7 @@
 
   <!-- Section A: Setup -->
   <div class="card mb-4 border-0 shadow-sm">
-    <div class="card-header" style="background-color: var(--color-dusty-lavender); color: white;">
+    <div class="card-header bg-primary">
       <h5 class="mb-0">Section A: Setup</h5>
     </div>
     <div class="card-body">
@@ -81,7 +81,7 @@
       </div>
 
       <!-- Add Member Form (Inline) -->
-      <div *ngIf="showAddMember" class="row mt-3 p-3 border rounded" style="background-color: var(--color-silver);">
+      <div *ngIf="showAddMember" class="row mt-3 p-3 border rounded bg-light">
         <div class="col-md-5">
           <input type="text" class="form-control" [(ngModel)]="newMemberName" placeholder="Member Name">
         </div>
@@ -121,23 +121,26 @@
 
   <!-- Section B: Evaluation Form (18 Metrics) -->
   <div class="card mb-4 border-0 shadow-sm">
-    <div class="card-header" style="background-color: var(--color-stormy-teal); color: white;">
+    <div class="card-header" style="background-color: var(--color-success);">
       <h5 class="mb-0">Section B: Evaluation Metrics</h5>
     </div>
     <div class="card-body">
       <!-- Loop through each KRA -->
-      <div *ngFor="let kra of kpiData; let kraIndex = index" class="mb-5">
-        <h4 class="border-bottom pb-2 mb-3" style="color: var(--color-dusty-lavender);">
-          {{ kraIndex + 1 }}. {{ kra.name }} ({{ kra.weight }}%)
+      <!-- kpiData is now an object: { "Lead Discovery": { kraWeight: 20, metrics: [...] }, ... } -->
+      <div *ngFor="let kraName of getKraNames(); let kraIndex = index" class="mb-5">
+        <h4 class="border-bottom pb-2 mb-3 text-primary">
+          {{ kraIndex + 1 }}. {{ kraName }} ({{ getKraWeight(kraName) }}%)
         </h4>
         
         <!-- Loop through metrics in this KRA -->
-        <div *ngFor="let metric of kra.metrics; let metricIndex = index" class="mb-4 p-3 border rounded bg-light">
+        <div *ngFor="let metric of getMetricsForKra(kraName); let metricIndex = index" class="mb-4 p-3 border rounded bg-light">
           <div class="row">
             <div class="col-md-12">
               <h6 class="fw-bold">
-                {{ metric.name }}
+                {{ metric.metricName }}
                 <small class="text-muted fw-normal">(Evidence: {{ metric.evidence }})</small>
+                <!-- Show file upload indicator if required -->
+                <span *ngIf="metric.requiresFile" class="badge bg-warning ms-2">File Required</span>
               </h6>
             </div>
           </div>
@@ -145,18 +148,18 @@
           <!-- Score Selection (Percentage) -->
           <div class="row mt-2">
             <div class="col-md-12">
-              <label class="form-label fw-bold">Score (1-{{ metric.weight }}%):</label>
+              <label class="form-label fw-bold">Score (1-{{ metric.metricWeight }}%):</label>
               <div class="d-flex align-items-center gap-3">
                 <input type="number" 
                        class="form-control" 
                        style="width: 100px;"
-                       [name]="'score_' + metric.name"
-                       [value]="getMetricScore(kra.name, metric.name)"
+                       [name]="'score_' + metric.metricName"
+                       [value]="getMetricScore(kraName, metric.metricName)"
                        [min]="1"
-                       [max]="metric.weight"
-                       (input)="onPercentageChange(kra.name, metric.name, $any($event.target).valueAsNumber)"
+                       [max]="metric.metricWeight"
+                       (input)="onPercentageChange(kraName, metric.metricName, $any($event.target).valueAsNumber)"
                        placeholder="%">
-                <span class="text-muted">{{ getRubricText(kra.name, metric.name) }}</span>
+                <span class="text-muted">{{ getRubricText(kraName, metric.metricName) }}</span>
               </div>
             </div>
           </div>
@@ -167,8 +170,34 @@
               <label class="form-label fw-bold">Evidence/Remarks</label>
               <textarea class="form-control" 
                         rows="2" 
-                        [(ngModel)]="getMetricRef(kra.name, metric.name).evidenceRemarks"
+                        [(ngModel)]="getMetricRef(kraName, metric.metricName).evidenceRemarks"
                         placeholder="Paste links (Redmine, OneDrive) or type remarks justifying the score"></textarea>
+            </div>
+          </div>
+          
+          <!-- File Upload (only if requiresFile is true) -->
+          <div class="row mt-2" *ngIf="metric.requiresFile">
+            <div class="col-md-12">
+              <label class="form-label fw-bold">
+                Upload Evidence File 
+                <span class="badge bg-warning text-dark">Required</span>
+              </label>
+              
+              <!-- Show uploaded file if exists -->
+              <div *ngIf="getMetricRef(kraName, metric.metricName).filePath" class="mb-2">
+                <span class="text-success">✓ File uploaded: {{ getFileName(getMetricRef(kraName, metric.metricName).filePath) }}</span>
+                <button type="button" class="btn btn-sm btn-outline-danger ms-2" 
+                        (click)="getMetricRef(kraName, metric.metricName).filePath = null">
+                  Remove
+                </button>
+              </div>
+              
+              <!-- File input -->
+              <input type="file" 
+                     class="form-control"
+                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                     (change)="onFileSelected($event, kraName, metric.metricName)">
+              <small class="text-muted">Upload supporting document (PDF, Word, Excel, Image)</small>
             </div>
           </div>
         </div>
@@ -179,17 +208,16 @@
   <!-- Submit Button -->
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body text-center">
-      <button class="btn btn-lg px-5" 
+      <button class="btn btn-lg px-5 btn-primary"
               [disabled]="!isFormValid || isSubmitting"
-              [style.background-color]="isFormValid ? 'var(--color-stormy-teal)' : 'var(--color-silver)'"
-              [style.color]="isFormValid ? 'white' : 'var(--color-pitch-black)'"
               (click)="submitEvaluation()">
         <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
         {{ isSubmitting ? 'Submitting...' : 'Submit Evaluation' }}
       </button>
-      
+       
       <p class="mt-2 text-muted" *ngIf="!isFormValid">
-        Please complete all {{ metrics.length }} metrics to enable submission.
+        <span *ngIf="completedCount < metrics.length">Please complete all {{ metrics.length }} metrics. </span>
+        <span *ngIf="!allRequiredFilesUploaded">Please upload all required evidence files. </span>
       </p>
     </div>
   </div>

@@ -28,6 +28,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   newProjectName: string = '';
   
   @Output() goBack = new EventEmitter<void>();
+  @Output() goToKpiSetup = new EventEmitter<void>();
 
   radarChartData: ChartData<'radar'> = {
     labels: ['Lead Discovery', 'Team Building', 'Communication', 'Prioritization', 'Problem Solving', 'Process Efficiency'],
@@ -287,5 +288,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   goToBack() {
     this.goBack.emit();
+  }
+
+  onGoToKpiSetup() {
+    this.goToKpiSetup.emit();
   }
 }

@@ -20,19 +20,20 @@
   <!-- Header -->
   <div class="row mb-4">
     <div class="col">
-      <h2 class="fw-bold" style="color: var(--color-pitch-black);">
+      <h2 class="fw-bold text-dark">
         Project Director Dashboard
       </h2>
       <p class="text-muted">Monitor BA/QA performance across projects</p>
     </div>
     <div class="col-auto">
-      <button class="btn btn-outline-secondary" (click)="goToBack()">← Back</button>
+      <button class="btn btn-outline-secondary me-2" (click)="goToBack()">← Back</button>
+      <button class="btn btn-primary" (click)="onGoToKpiSetup()">⚙ KPI Setup</button>
     </div>
   </div>
 
   <!-- Filters -->
   <div class="card mb-4 border-0 shadow-sm">
-    <div class="card-header" style="background-color: var(--color-dusty-lavender); color: white;">
+        <div class="card-header bg-primary">
       <h5 class="mb-0">Filters</h5>
     </div>
     <div class="card-body">
@@ -66,7 +67,7 @@
       </div>
 
       <!-- Create Project Form -->
-      <div *ngIf="showCreateProject" class="row mt-3 p-3 border rounded" style="background-color: var(--color-silver);">
+      <div *ngIf="showCreateProject" class="row mt-3 p-3 border rounded bg-light">
         <div class="col-md-8">
           <input type="text" class="form-control" [(ngModel)]="newProjectName" placeholder="Enter project name">
         </div>
@@ -83,7 +84,7 @@
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body text-center">
           <h6 class="text-muted text-uppercase">Total Evaluations</h6>
-          <h2 class="fw-bold" style="color: var(--color-dusty-lavender);">{{ summary?.totalEvaluations || 0 }}</h2>
+          <h2 class="fw-bold text-primary">{{ summary?.totalEvaluations || 0 }}</h2>
         </div>
       </div>
     </div>
@@ -91,7 +92,7 @@
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body text-center">
           <h6 class="text-muted text-uppercase">Average Score</h6>
-          <h2 class="fw-bold" style="color: var(--color-stormy-teal);">{{ summary?.averageScore || 0 | number:'1.2-2' }}</h2>
+          <h2 class="fw-bold text-success">{{ summary?.averageScore || 0 | number:'1.2-2' }}</h2>
           <small class="text-muted">out of 4.0</small>
         </div>
       </div>
@@ -127,7 +128,7 @@
   <div *ngIf="memberSummary" class="row mb-4">
     <div class="col-12">
       <div class="card border-0 shadow-sm">
-        <div class="card-header" style="background-color: var(--color-stormy-teal); color: white;">
+        <div class="card-header bg-success">
           <h5 class="mb-0">Employee Performance Details</h5>
         </div>
         <div class="card-body">
@@ -189,7 +190,7 @@
   <div *ngIf="evaluationDetails.length > 0" class="row">
     <div class="col-12">
       <div class="card border-0 shadow-sm">
-        <div class="card-header" style="background-color: var(--color-dusty-lavender); color: white;">
+    <div class="card-header bg-primary">
           <h5 class="mb-0">Evaluation Details</h5>
         </div>
         <div class="card-body">

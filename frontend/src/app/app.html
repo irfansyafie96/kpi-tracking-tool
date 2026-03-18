@@ -12,6 +12,13 @@
 
 <!-- Project Director View -->
 <app-dashboard 
-  *ngIf="currentRole === 'PD'"
-  (goBack)="goBack()">
+  *ngIf="currentRole === 'PD' && !showKpiSetup"
+  (goBack)="goBack()"
+  (goToKpiSetup)="goToKpiSetup()">
 </app-dashboard>
+
+<!-- KPI Setup (accessed from PD Dashboard) -->
+<app-kpi-setup 
+  *ngIf="showKpiSetup"
+  (goBack)="goBack()">
+</app-kpi-setup>
