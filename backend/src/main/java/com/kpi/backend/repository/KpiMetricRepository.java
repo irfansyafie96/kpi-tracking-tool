@@ -45,9 +45,9 @@ public interface KpiMetricRepository extends JpaRepository<KpiMetric, Long> {
      * Get the sum of unique KRA weights
      * Used to validate that total KRA weights = 100%
      * 
-     * @return Sum of distinct kra_weight values
+     * @return Sum of each unique KRA weight (each KRA counted once)
      */
-    @Query("SELECT SUM(DISTINCT km.kraWeight) FROM KpiMetric km")
+    @Query(value = "SELECT SUM(kra_weight) FROM (SELECT DISTINCT kra_name, kra_weight FROM kpi_metrics) AS unique_kras", nativeQuery = true)
     Integer getTotalKraWeight();
 
     /**
@@ -58,6 +58,26 @@ public interface KpiMetricRepository extends JpaRepository<KpiMetric, Long> {
      */
     @Query("SELECT SUM(km.metricWeight) FROM KpiMetric km")
     Integer getTotalMetricWeight();
+
+    /**
+     * Get the sum of unique KRA weights excluding a specific metric
+     * Used for validation during metric update
+     * 
+     * @param excludeId Metric ID to exclude from calculation
+     * @return Sum of each unique KRA weight (each KRA counted once)
+     */
+    @Query(value = "SELECT SUM(kra_weight) FROM (SELECT DISTINCT kra_name, kra_weight FROM kpi_metrics WHERE id != :excludeId) AS unique_kras", nativeQuery = true)
+    Integer getTotalKraWeightExcluding(Long excludeId);
+
+    /**
+     * Get the sum of all metric weights excluding a specific metric
+     * Used for validation during metric update
+     * 
+     * @param excludeId Metric ID to exclude from calculation
+     * @return Sum of all metric_weight values except the excluded one
+     */
+    @Query("SELECT SUM(km.metricWeight) FROM KpiMetric km WHERE km.id != :excludeId")
+    Integer getTotalMetricWeightExcluding(Long excludeId);
 
     /**
      * Get sum of metric weights for a specific KRA

@@ -140,8 +140,7 @@ public class KpiMetricController {
             // Set the ID to ensure we update, not create
             metric.setId(id);
             
-            // Validate and save
-            kpiMetricService.validateWeights();
+            // Save without validation - user can validate manually with /validate endpoint
             KpiMetric updated = kpiMetricService.saveMetric(metric);
             
             return ResponseEntity.ok(updated);

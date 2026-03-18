@@ -96,7 +96,8 @@ public class KpiMetricService {
 
     /**
      * Save a new or update existing KPI metric.
-     * Validates total weights before saving.
+     * For new metrics: validates total weights before saving.
+     * For updates: skips validation (user can validate manually with /validate endpoint).
      * 
      * @param metric The metric to save
      * @return The saved metric with ID assigned
@@ -104,8 +105,11 @@ public class KpiMetricService {
      */
     @Transactional
     public KpiMetric saveMetric(KpiMetric metric) {
-        // Validate before saving
-        validateWeights();
+        // For new metrics, validate weights before saving
+        // For updates, skip validation to allow saving - user can validate manually
+        if (metric.getId() == null) {
+            validateWeights();
+        }
         
         // Set default values if not provided
         if (metric.getRequiresFile() == null) {
@@ -138,14 +142,39 @@ public class KpiMetricService {
      * @throws IllegalArgumentException if validation fails
      */
     public void validateWeights() {
+        validateWeights(null);
+    }
+
+    /**
+     * Validate that KRA and metric weights are correct.
+     * Optionally excludes a metric from calculation (for update validation).
+     * 
+     * Validation rules:
+     * 1. Total KRA weights must equal 100%
+     * 2. Total metric weights must equal 100%
+     * 
+     * @param excludeMetricId Metric ID to exclude from calculation (for updates)
+     * @throws IllegalArgumentException if validation fails
+     */
+    public void validateWeights(Long excludeMetricId) {
         // Get total KRA weight (sum of unique KRA weights)
-        Integer totalKraWeight = kpiMetricRepository.getTotalKraWeight();
+        Integer totalKraWeight;
+        if (excludeMetricId != null) {
+            totalKraWeight = kpiMetricRepository.getTotalKraWeightExcluding(excludeMetricId);
+        } else {
+            totalKraWeight = kpiMetricRepository.getTotalKraWeight();
+        }
         if (totalKraWeight == null) {
             totalKraWeight = 0;
         }
         
         // Get total metric weight
-        Integer totalMetricWeight = kpiMetricRepository.getTotalMetricWeight();
+        Integer totalMetricWeight;
+        if (excludeMetricId != null) {
+            totalMetricWeight = kpiMetricRepository.getTotalMetricWeightExcluding(excludeMetricId);
+        } else {
+            totalMetricWeight = kpiMetricRepository.getTotalMetricWeight();
+        }
         if (totalMetricWeight == null) {
             totalMetricWeight = 0;
         }
