@@ -107,16 +107,12 @@ public class KpiMetricController {
     @PostMapping
     public ResponseEntity<?> createMetric(@RequestBody KpiMetric metric) {
         try {
-            // Validate weights before saving
-            kpiMetricService.validateWeights();
-            
-            // Save the metric
+            // Save without validation - user can validate manually with /validate endpoint
             KpiMetric saved = kpiMetricService.saveMetric(metric);
             
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
             
-        } catch (IllegalArgumentException e) {
-            // Return validation error message
+        } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         }
