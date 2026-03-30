@@ -65,22 +65,22 @@ interface MetricScore {
 export class PmEvaluationComponent implements OnInit, AfterViewInit {
   // KPI data from API - grouped by KRA
   kpiData: { [kraName: string]: KpiGroup } = {};
-  
+
   projects: Project[] = [];
   members: ProjectMember[] = [];
-  
+
   selectedProjectId: number | null = null;
   selectedMemberId: number | null = null;
   evaluatorName: string = '';
-  
+
   newMemberName: string = '';
   newMemberRole: 'BA' | 'QA' = 'BA';
-  
+
   metrics: MetricScore[] = [];
   isSubmitting = false;
   submitSuccess = false;
   errorMessage = '';
-  
+
   showAddMember = false;
   @Output() goBack = new EventEmitter<void>();
 
@@ -143,11 +143,11 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
    */
   initMetrics() {
     this.metrics = [];
-    
+
     // Loop through each KRA in the KPI data
     for (const kraName in this.kpiData) {
       const kraGroup = this.kpiData[kraName];
-      
+
       // Loop through each metric in the KRA
       for (const metric of kraGroup.metrics) {
         this.metrics.push({
@@ -162,7 +162,7 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
         });
       }
     }
-    
+
     console.log('[PM] Metrics initialized:', this.metrics.length, 'metrics');
   }
 
@@ -186,7 +186,7 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
     this.members = [];
     this.submitSuccess = false;
     this.errorMessage = '';
-    
+
     if (this.selectedProjectId) {
       this.http.get<ProjectMember[]>(`http://localhost:8080/api/projects/${this.selectedProjectId}/members`)
         .subscribe({
@@ -311,7 +311,7 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
   onPercentageChange(kraName: string, metricName: string, value: number) {
     const metric = this.metrics.find(m => m.kraName === kraName && m.metricName === metricName);
     if (metric) {
-      metric.percentageScore = value;
+      metric.percentageScore = (value === null || isNaN(value)) ? null : value;
     }
   }
 
@@ -326,13 +326,13 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
   getRubricText(kraName: string, metricName: string): string {
     const kraGroup = this.kpiData[kraName];
     if (!kraGroup) return '';
-    
+
     const metric = kraGroup.metrics.find(m => m.metricName === metricName);
     if (!metric) return '';
-    
+
     const score = this.getMetricScore(kraName, metricName);
     if (score === null) return 'Enter a percentage to see rubric';
-    
+
     // Parse rubric JSON: {"1": "text", "5": "text"}
     try {
       const rubric = JSON.parse(metric.rubricJson);
@@ -356,7 +356,7 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
     }
     return 5;  // Default fallback
   }
-  
+
   /**
    * Get the requiresFile flag for a metric
    * Used in template to show file upload input
@@ -409,14 +409,14 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (response) => {
           console.log('[PM] File uploaded successfully:', response);
-          
+
           // Update the metric with the file path
           const metric = this.metrics.find(m => m.kraName === kraName && m.metricName === metricName);
           if (metric) {
             metric.filePath = response.filePath;
             console.log('[PM] File path saved to metric:', metric.filePath);
           }
-          
+
           this.showSuccessToast('File uploaded successfully!');
           this.cdr.detectChanges();
         },
