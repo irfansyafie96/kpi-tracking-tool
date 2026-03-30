@@ -26,13 +26,13 @@
       <p class="text-muted">Monitor BA/QA performance across projects</p>
     </div>
     <div class="col-auto">
-      <button class="btn btn-outline-secondary me-2" (click)="goToBack()">← Back</button>
-      <button class="btn btn-primary" (click)="onGoToKpiSetup()">⚙ KPI Setup</button>
+      <button class="btn btn-outline-dark me-2" (click)="goToBack()">← Back</button>
+      <button class="btn btn-outline-dark" (click)="onGoToKpiSetup()">⚙ KPI Setup</button>
     </div>
   </div>
 
   <!-- Filters -->
-  <div class="card mb-4 border-0 shadow-sm">
+  <div class="card mb-4 border-primary" style="border-width: 2px;">
         <div class="card-header bg-primary">
       <h5 class="mb-0 text-white">Filters</h5>
     </div>
@@ -80,7 +80,7 @@
   <!-- Summary Cards -->
   <div class="row mb-4">
     <div class="col-md-4">
-      <div class="card border-0 shadow-sm h-100">
+      <div class="card border-primary h-100" style="border-width: 2px;">
         <div class="card-body text-center">
           <h6 class="text-muted text-uppercase">Total Evaluations</h6>
           <h2 class="fw-bold text-primary">{{ summary?.totalEvaluations || 0 }}</h2>
@@ -88,7 +88,7 @@
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card border-0 shadow-sm h-100">
+      <div class="card border-primary h-100" style="border-width: 2px;">
         <div class="card-body text-center">
           <h6 class="text-muted text-uppercase">Average Score</h6>
           <h2 class="fw-bold text-success">{{ summary?.averageScore || 0 | number:'1.2-2' }}</h2>
@@ -97,7 +97,7 @@
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card border-0 shadow-sm h-100">
+      <div class="card border-primary h-100" style="border-width: 2px;">
         <div class="card-body">
           <h6 class="text-muted text-uppercase text-center mb-2">Rating Breakdown</h6>
           <div class="d-flex justify-content-between">
@@ -126,9 +126,9 @@
   <!-- Member Details -->
   <div *ngIf="memberSummary" class="row mb-4">
     <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-header bg-success">
-          <h5 class="mb-0">Employee Performance Details</h5>
+      <div class="card border-primary" style="border-width: 2px;">
+        <div class="card-header bg-primary">
+          <h5 class="mb-0 text-white">Employee Performance Details</h5>
         </div>
         <div class="card-body">
           <div class="row mb-4">
@@ -188,9 +188,9 @@
   <!-- Details Table -->
   <div *ngIf="evaluationDetails.length > 0" class="row">
     <div class="col-12">
-      <div class="card border-0 shadow-sm">
-    <div class="card-header bg-primary">
-          <h5 class="mb-0">Evaluation Details</h5>
+      <div class="card border-primary" style="border-width: 2px;">
+        <div class="card-header bg-primary">
+          <h5 class="mb-0 text-white">Evaluation Details</h5>
         </div>
         <div class="card-body">
           <div class="table-responsive">

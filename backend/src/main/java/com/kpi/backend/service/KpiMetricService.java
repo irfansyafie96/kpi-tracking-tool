@@ -76,6 +76,7 @@ public class KpiMetricService {
     public Map<String, KpiGroup> getMetricsGroupedByKra() {
         List<KpiMetric> allMetrics = kpiMetricRepository.findAllByOrderByDisplayOrderAsc();
         
+        // First pass: group metrics by KRA
         Map<String, KpiGroup> kraGroups = new LinkedHashMap<>();
         
         for (KpiMetric metric : allMetrics) {
@@ -91,7 +92,25 @@ public class KpiMetricService {
             kraGroups.get(metric.getKraName()).getMetrics().add(metric);
         }
         
-        return kraGroups;
+        // Sort KRAs by predefined order
+        Map<String, KpiGroup> sortedKraGroups = new LinkedHashMap<>();
+        String[] kraOrder = {"Lead Discovery", "Team Building", "Communication", 
+                            "Prioritization", "Problem Solving", "Process Efficiency"};
+        
+        for (String kraName : kraOrder) {
+            if (kraGroups.containsKey(kraName)) {
+                sortedKraGroups.put(kraName, kraGroups.get(kraName));
+            }
+        }
+        
+        // Add any KRAs not in the predefined order
+        for (Map.Entry<String, KpiGroup> entry : kraGroups.entrySet()) {
+            if (!sortedKraGroups.containsKey(entry.getKey())) {
+                sortedKraGroups.put(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        return sortedKraGroups;
     }
 
     /**

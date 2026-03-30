@@ -47,8 +47,8 @@
       <p class="text-muted">Configure the evaluation framework - KRAs, metrics, weights, and rubrics</p>
     </div>
     <div class="col-auto">
-      <button class="btn btn-outline-secondary me-2" (click)="onGoBack()">← Back to Dashboard</button>
-      <button class="btn btn-outline-secondary" (click)="loadKpis()">↻ Refresh</button>
+      <button class="btn btn-outline-dark me-2" (click)="onGoBack()">← Back to Dashboard</button>
+      <button class="btn btn-outline-dark" (click)="loadKpis()">↻ Refresh</button>
     </div>
   </div>
 
@@ -63,11 +63,11 @@
   </div>
 
   <!-- Weight Summary -->
-  <div class="card mb-4 border-0 shadow-sm">
+  <div class="card mb-4 border-primary" style="border-width: 2px;">
     <div class="card-header bg-primary">
       <div class="d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Weight Summary</h5>
-        <button class="btn btn-sm btn-light" (click)="validateWeights()">Validate Weights</button>
+        <h5 class="mb-0 text-white">Weight Summary</h5>
+        <button class="btn btn-sm btn-outline-light" (click)="validateWeights()">Validate Weights</button>
       </div>
     </div>
     <div class="card-body">
@@ -119,7 +119,7 @@
     </div>
 
     <!-- Add New KRA Form -->
-    <div *ngIf="showAddKra" class="card mb-4 border-0 shadow-sm">
+    <div *ngIf="showAddKra" class="card mb-4 border-success" style="border-width: 2px;">
       <div class="card-header bg-success text-white">
         <h5 class="mb-0">Add New KRA</h5>
       </div>
@@ -146,7 +146,7 @@
     </div>
 
     <!-- KRAs and Metrics -->
-    <div *ngFor="let kraName of getKraNames(); let kraIndex = index" class="card mb-4 border-0 shadow-sm">
+    <div *ngFor="let kraName of getKraNames(); let kraIndex = index" class="card mb-4 border-success" style="border-width: 2px;">
       <!-- KRA Header -->
       <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
         <h5 class="mb-0">{{ kraIndex + 1 }}. {{ kraName }} ({{ getKraWeight(kraName) }}%)</h5>
