@@ -188,8 +188,8 @@ public class KpiMetricController {
             ));
             
         } catch (IllegalArgumentException e) {
-            // Validation failed
-            return ResponseEntity.badRequest().body(Map.of(
+            // Validation failed - return 200 with valid:false (not 400 error)
+            return ResponseEntity.ok(Map.of(
                 "valid", false,
                 "message", e.getMessage()
             ));

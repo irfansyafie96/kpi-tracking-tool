@@ -34,7 +34,7 @@
   <!-- Filters -->
   <div class="card mb-4 border-0 shadow-sm">
         <div class="card-header bg-primary">
-      <h5 class="mb-0">Filters</h5>
+      <h5 class="mb-0 text-white">Filters</h5>
     </div>
     <div class="card-body">
       <div class="row g-3 align-items-end">
@@ -58,8 +58,7 @@
 
         <!-- Create Project Button -->
         <div class="col-md-4">
-          <button class="btn w-100" 
-                  style="background-color: var(--color-stormy-teal); color: white;"
+          <button class="btn btn-primary w-100"
                   (click)="showCreateProject = !showCreateProject">
             {{ showCreateProject ? 'Cancel' : '+ Create Project' }}
           </button>
@@ -134,7 +133,7 @@
         <div class="card-body">
           <div class="row mb-4">
             <div class="col-md-4">
-              <strong>Latest Score:</strong> 
+              <strong>Latest Score:</strong>
               <span class="ms-2 h4" [class]="getRatingClass(memberSummary.latestRating)">
                 {{ memberSummary.latestScore | number:'1.2-2' }}
               </span>
