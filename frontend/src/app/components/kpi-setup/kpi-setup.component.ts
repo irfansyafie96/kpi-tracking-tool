@@ -57,6 +57,9 @@ export class KpiSetupComponent implements OnInit {
   // For rubric editor
   rubricEntries: { key: number; value: string }[] = [];
 
+  // For delete confirmation
+  metricToDelete: KpiMetric | null = null;
+
   // For navigation
   @Output() goBack = new EventEmitter<void>();
 
@@ -299,14 +302,29 @@ export class KpiSetupComponent implements OnInit {
   }
 
   /**
-   * Delete a metric
+   * Show delete confirmation modal
    */
-  deleteMetric(metric: KpiMetric) {
-    if (!metric.id || !confirm(`Delete metric "${metric.metricName}"?`)) {
+  showDeleteConfirm(metric: KpiMetric) {
+    this.metricToDelete = metric;
+    const modalEl = document.getElementById('deleteConfirmModal');
+    const modalNameEl = document.getElementById('deleteMetricName');
+    if (modalEl && modalNameEl) {
+      modalNameEl.textContent = metric.metricName;
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
+  /**
+   * Confirm delete action from modal
+   */
+  confirmDelete() {
+    if (!this.metricToDelete || !this.metricToDelete.id) {
+      this.cancelDelete();
       return;
     }
-
-    this.kpiService.deleteMetric(metric.id).subscribe({
+    
+    this.kpiService.deleteMetric(this.metricToDelete.id).subscribe({
       next: () => {
         this.showSuccess('Metric deleted successfully');
         this.loadKpis();
@@ -318,6 +336,20 @@ export class KpiSetupComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+    
+    this.cancelDelete();
+  }
+
+  /**
+   * Cancel delete and close modal
+   */
+  cancelDelete() {
+    const modalEl = document.getElementById('deleteConfirmModal');
+    if (modalEl) {
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal?.hide();
+    }
+    this.metricToDelete = null;
   }
 
   /**
