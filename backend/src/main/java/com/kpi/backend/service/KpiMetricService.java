@@ -105,11 +105,7 @@ public class KpiMetricService {
      */
     @Transactional
     public KpiMetric saveMetric(KpiMetric metric) {
-        // For new metrics, validate weights before saving
-        // For updates, skip validation to allow saving - user can validate manually
-        if (metric.getId() == null) {
-            validateWeights();
-        }
+        // Validation removed - user can validate manually with /validate endpoint
         
         // Set default values if not provided
         if (metric.getRequiresFile() == null) {
