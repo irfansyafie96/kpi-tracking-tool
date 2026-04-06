@@ -20,6 +20,7 @@ Thumbs.db
 
 # Environment
 .env
+/uploads
 
 # Database (local only)
 *.sql
