@@ -74,11 +74,8 @@ public class KpiMetric {
      * Rubric stored as JSON format
      * Maps score levels to descriptions
      * Example: {"1": "1% - Poor", "5": "5% - Excellent"}
-     * 
-     * We use String here and parse to Map in service layer
-     * because JSON column handling varies by database
      */
-    @Column(name = "rubric_json", columnDefinition = "JSON")
+    @Column(name = "rubric_json", columnDefinition = "text")
     private String rubricJson;
 
     /**
