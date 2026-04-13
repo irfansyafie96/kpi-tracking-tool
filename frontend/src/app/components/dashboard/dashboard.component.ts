@@ -1,6 +1,7 @@
-import { Component, OnInit, Output, EventEmitter, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { DashboardService, Project, ProjectMember, DashboardSummary, MemberSummary, EvaluationDetail } from './dashboard.service';
@@ -27,9 +28,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   showCreateProject = false;
   newProjectName: string = '';
   
-  @Output() goBack = new EventEmitter<void>();
-  @Output() goToKpiSetup = new EventEmitter<void>();
-
   radarChartData: ChartData<'radar'> = {
     labels: ['Lead Discovery', 'Team Building', 'Communication', 'Prioritization', 'Problem Solving', 'Process Efficiency'],
     datasets: [
@@ -59,7 +57,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
   };
 
-  constructor(private dashboardService: DashboardService, private cdr: ChangeDetectorRef) {}
+  constructor(private dashboardService: DashboardService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit() {
     this.loadProjects();
@@ -287,10 +285,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   goToBack() {
-    this.goBack.emit();
+    this.router.navigate(['/']);
   }
 
   onGoToKpiSetup() {
-    this.goToKpiSetup.emit();
+    this.router.navigate(['/pd/kpi-setup']);
   }
 }

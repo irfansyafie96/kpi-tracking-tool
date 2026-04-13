@@ -1,6 +1,7 @@
-import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { KpiService, KpiMetric, KpiGroup } from '../../services/kpi.service';
 import { HttpClient } from '@angular/common/http';
 import { DashboardService } from '../dashboard/dashboard.service';
@@ -60,12 +61,10 @@ export class KpiSetupComponent implements OnInit {
   // For delete confirmation
   metricToDelete: KpiMetric | null = null;
 
-  // For navigation
-  @Output() goBack = new EventEmitter<void>();
-
   constructor(
     private kpiService: KpiService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -508,6 +507,6 @@ export class KpiSetupComponent implements OnInit {
   }
 
   onGoBack() {
-    this.goBack.emit();
+    this.router.navigate(['/pd']);
   }
 }

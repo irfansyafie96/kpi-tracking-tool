@@ -1,7 +1,8 @@
-import { Component, OnInit, Output, EventEmitter, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 declare var bootstrap: any;
 
 /**
@@ -82,9 +83,8 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
   errorMessage = '';
 
   showAddMember = false;
-  @Output() goBack = new EventEmitter<void>();
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit() {
     // First load KPIs from API, then load projects
@@ -293,7 +293,7 @@ export class PmEvaluationComponent implements OnInit, AfterViewInit {
   }
 
   goToBack() {
-    this.goBack.emit();
+    this.router.navigate(['/']);
   }
 
   getMetricScore(kraName: string, metricName: string): number | null {

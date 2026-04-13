@@ -1,24 +1,4 @@
-<!-- Landing Page -->
-<app-landing 
-  *ngIf="!currentRole" 
-  (roleSelected)="onRoleSelected($event)">
-</app-landing>
-
-<!-- Project Manager View -->
-<app-pm-evaluation 
-  *ngIf="currentRole === 'PM'"
-  (goBack)="goBack()">
-</app-pm-evaluation>
-
-<!-- Project Director View -->
-<app-dashboard 
-  *ngIf="currentRole === 'PD' && !showKpiSetup"
-  (goBack)="goBack()"
-  (goToKpiSetup)="goToKpiSetup()">
-</app-dashboard>
-
-<!-- KPI Setup (accessed from PD Dashboard) -->
-<app-kpi-setup 
-  *ngIf="showKpiSetup"
-  (goBack)="goBack()">
-</app-kpi-setup>
+<app-header></app-header>
+<div class="container-fluid py-4">
+  <router-outlet></router-outlet>
+</div>

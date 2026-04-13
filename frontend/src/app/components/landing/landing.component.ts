@@ -1,4 +1,5 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-landing',
@@ -7,9 +8,9 @@ import { Component, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./landing.component.css']
 })
 export class LandingComponent {
-  @Output() roleSelected = new EventEmitter<'PM' | 'PD'>();
+  constructor(private router: Router) {}
 
   selectRole(role: 'PM' | 'PD') {
-    this.roleSelected.emit(role);
+    this.router.navigate([role === 'PM' ? '/pm' : '/pd']);
   }
 }
