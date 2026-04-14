@@ -20,14 +20,21 @@ Thumbs.db
 
 # Environment
 .env
-/uploads
+.env.local
+.env.production
 
-# Database (local only)
+# Python
+backend-python/venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# File uploads
+uploads/
+backend-python/uploads/
+
+# Database
 *.sql
 
-# Spring Boot (local profiles - DON'T commit credentials!)
-application-dev.properties
-application-*.properties
-
-# AI Memory (excluded from commit)
+# AI Memory
 .ai/

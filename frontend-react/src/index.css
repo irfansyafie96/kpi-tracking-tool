@@ -1,0 +1,21 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-teal-600: #0f4c5c;
+  --color-teal-700: #0a3540;
+  --color-teal-800: #072d3a;
+}
+
+* {
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
