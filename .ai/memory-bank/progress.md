@@ -22,6 +22,7 @@
 
 ### UI Enhancements
 - [x] KRA Weight Distribution card on KPI Setup page showing all KRAs with full-width divider line
+- [x] Table component with rounded corners matching Card component (Table.tsx wrapper div with rounded-xl and overflow-hidden)
 
 ### API Endpoints
 - [x] Auth: login, me

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export const Table = forwardRef<HTMLTableElement, TableHTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="w-full overflow-auto">
+    <div className="w-full overflow-hidden rounded-xl border-x border-t border-b bg-gray-50">
       <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>
   )
@@ -11,7 +11,7 @@ export const Table = forwardRef<HTMLTableElement, TableHTMLAttributes<HTMLTableE
 Table.displayName = "Table";
 
 export const TableHead = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(
-  ({ className, ...props }, ref) => <thead ref={ref} className={cn("border-b bg-gray-50", className)} {...props} />
+  ({ className, ...props }, ref) => <thead ref={ref} className={cn(className)} {...props} />
 );
 TableHead.displayName = "TableHead";
 
