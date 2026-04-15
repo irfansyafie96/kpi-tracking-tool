@@ -21,7 +21,7 @@
 - [x] File upload infrastructure
 
 ### UI Enhancements
-- [x] KRA Weight Distribution card on KPI Setup page showing all KRAs with full-width divider line
+- [x] KRA Weight Distribution card on KPI Setup page with colored dot indicators per KRA (cycling color palette using inline styles)
 - [x] Table component with rounded corners matching Card component (Table.tsx wrapper div with rounded-xl and overflow-hidden)
 
 ### API Endpoints
@@ -64,7 +64,7 @@
 ## Current Status
 
 **Phase:** v4.0 Complete - Feature Development  
-**Last Updated:** 2026-04-16
+**Last Updated:** 2026-04-17
 
 ### Verified Working
 - Backend: FastAPI on port 8001

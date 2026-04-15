@@ -34,6 +34,14 @@ export function KpiSetupPage() {
     display_order: 0,
   });
   const [validation, setValidation] = useState<any>(null);
+  const kraPalette = [
+    "rgb(20, 184, 166)", // teal-500
+    "rgb(59, 130, 246)", // blue-500
+    "rgb(168, 85, 247)", // purple-500
+    "rgb(227, 160, 8)", // yellow-500
+    "rgb(249, 115, 22)", // orange-500
+    "rgb(236, 72, 153)", // pink-500
+  ];
 
   useEffect(() => {
     load();
@@ -120,17 +128,26 @@ export function KpiSetupPage() {
         <CardHeader>
           <CardTitle>KRA Weight Distribution</CardTitle>
         </CardHeader>
-        <CardContent>
-          {Object.entries(kpiData).map(([kra, { kra_weight }]) => (
-            <div key={kra} className="flex justify-between items-center py-1">
-              <span>{kra}</span>
-              <Badge variant={kra_weight === 20 ? "success" : "warning"}>
-                {kra_weight}%
-              </Badge>
+        <CardContent className="space-y-2">
+          {/* KRA rows with colored dots */}
+          {Object.entries(kpiData).map(([kra, { kra_weight }], index) => (
+            <div key={kra} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-2 h-2 rounded-full`}
+                  style={{
+                    backgroundColor: kraPalette[index % kraPalette.length],
+                  }}
+                />
+                <span>{kra}</span>
+              </div>
+              <Badge variant="outline">{kra_weight}%</Badge>
             </div>
           ))}
-          <hr className="-mx-6 border-gray-400" />
-          <div className="flex justify-between items-center pt-3">
+
+          {/* Divider + Total */}
+          <hr className="-mx-6 border-gray-200" />
+          <div className="flex items-center justify-between">
             <span className="font-semibold">Total</span>
             <Badge variant="default">100%</Badge>
           </div>
